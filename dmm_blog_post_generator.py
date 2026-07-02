@@ -240,7 +240,7 @@ def parse_product(item):
         imgs = sample_img.get('sample_l', {})
         if isinstance(imgs, dict):
             imgs = imgs.get('image', [])
-        sample_images = imgs[:4] if imgs else []
+        sample_images = imgs[:8] if imgs else []
 
     # サンプル動画
     sample_movie_url = ''
@@ -414,7 +414,7 @@ def build_article_html(product):
         return (f'<tr style="border-bottom:1px solid #eee;">'
                 f'<th style="padding:10px 12px;background:#fafafa;width:110px;text-align:left;'
                 f'font-size:13px;color:#555;font-weight:600;">{label_text}</th>'
-                f'<td style="padding:10px 12px;font-size:14px;">{value}</td></tr>')
+                f'<td style="padding:10px 12px;font-size:14px;color:#333333;">{value}</td></tr>')
 
     # ジャケ写画像（テーブルの外・記事上部に大きく表示）
     # はてなブログで外部画像を表示するには設定が必要：
@@ -470,15 +470,15 @@ def build_article_html(product):
     # ── サンプル動画 ──
     if sample_mv:
         parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;">🎬 無料サンプル動画</h2>')
-        parts.append(f'<p>購入前に無料でサンプル動画を確認できます。</p>')
+        parts.append(f'<p style="color:#333333;">購入前に無料でサンプル動画を確認できます。</p>')
         # litevideo埋め込み
-        parts.append(f'<p><a href="{sample_mv}" target="_blank" rel="nofollow noopener">▶ サンプル動画を見る（無料）</a></p>')
+        parts.append(f'<p><a href="{sample_mv}" target="_blank" rel="nofollow noopener" style="color:#e60033;">▶ サンプル動画を見る（無料）</a></p>')
 
     # ── サンプル画像 ──
     if sample_imgs:
         parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;">🖼 サンプル画像</h2>')
         parts.append('<p style="font-size:13px;color:#666;">※画像をクリックすると作品ページに移動します</p>')
-        parts.append('<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-width:600px;">')
+        parts.append('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:600px;">')
         for img in sample_imgs:
             parts.append(f'''
 <a href="{url}" target="_blank" rel="nofollow noopener">
@@ -517,19 +517,6 @@ def build_article_html(product):
                       f'border-radius:4px;position:relative;font-size:14px;">'
                       f'<span style="position:absolute;left:8px;color:#e60033;font-weight:bold;">✓</span>{pt}</li>')
     parts.append('</ul>')
-
-    # ── 2つ目の購入ボタン ──
-    parts.append(f'''
-<p style="text-align:center;margin:24px 0;">
-  <a href="{url}" target="_blank" rel="nofollow noopener"
-     style="display:inline-block;padding:16px 40px;
-            background:linear-gradient(135deg,#ff4569,#e60033);color:#fff;
-            font-weight:bold;font-size:17px;border-radius:50px;text-decoration:none;
-            box-shadow:0 4px 12px rgba(230,0,51,0.35);">
-    🛒 FANZAで購入・詳細を見る
-  </a>
-</p>
-''')
 
     # ── FANZAへの新規登録誘導（サービス新規報酬を狙う重要セクション） ──
     parts.append('<h2 style="border-bottom:3px solid #ff6f00;padding-bottom:6px;margin-top:32px;">🔰 FANZAをまだ使ったことがない方へ</h2>')
@@ -601,12 +588,16 @@ def build_article_html(product):
 
 def build_hatena_categories(product):
     """はてなブログのカテゴリ（タグ）を生成する"""
-    cats = ['FANZA', 'アダルト動画', 'アフィリエイト']
+    # 付けたくないタグ（アフィリエイト表記／ハイビジョン／独占配信）は除外する
+    EXCLUDED_TAGS = {'アフィリエイト', 'ハイビジョン', '独占配信'}
+
+    cats = ['FANZA', 'アダルト動画']
     if product['actors']:
         cats.extend(product['actors'][:2])
     if product['genres']:
-        cats.extend(product['genres'][:2])
-    return cats
+        genre_cats = [g for g in product['genres'] if g not in EXCLUDED_TAGS]
+        cats.extend(genre_cats[:2])
+    return [c for c in cats if c not in EXCLUDED_TAGS]
 
 # ================================================================
 # 📮 はてなブログ AtomPub API
