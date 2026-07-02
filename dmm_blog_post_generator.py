@@ -372,7 +372,7 @@ def build_article_html(product):
     BODY_FONT = ("'Hiragino Kaku Gothic ProN','Hiragino Sans','Yu Gothic Medium',"
                  "'Yu Gothic','Meiryo',sans-serif")
     parts.append(
-        f'<div style="background:#ffffff;color:#333333;font-family:{BODY_FONT};'
+        f'<div style="background:#ffffff;color:#333333 !important;font-family:{BODY_FONT};'
         f'line-height:1.9;padding:20px;border-radius:8px;">'
     )
 
@@ -401,10 +401,10 @@ def build_article_html(product):
         f'<strong>{title}</strong>のレビューです。{actor_str}が出演するこの作品、FANZAでサンプル動画が公開されています。気になる方はまずサンプルだけでも確認してみてください。',
         f'FANZAで人気の<strong>{title}</strong>をご紹介します。{actor_str}の作品です。無料サンプル動画あり、購入前に内容をチェックできます。',
     ]
-    parts.append(f'<p style="font-size:15px;line-height:1.8;">{random.choice(intro_templates)}</p>')
+    parts.append(f'<p style="font-size:15px;line-height:1.8;color:#333333 !important;">{random.choice(intro_templates)}</p>')
 
     # ── 作品情報テーブル ──
-    parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;">📋 作品情報</h2>')
+    parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;color:#333333 !important;">📋 作品情報</h2>')
     parts.append('<table style="border-collapse:collapse;width:100%;max-width:600px;margin:16px 0;box-shadow:0 1px 3px rgba(0,0,0,0.1);">')
     parts.append('<tbody>')
 
@@ -413,14 +413,14 @@ def build_article_html(product):
             return ''
         return (f'<tr style="border-bottom:1px solid #eee;">'
                 f'<th style="padding:10px 12px;background:#fafafa;width:110px;text-align:left;'
-                f'font-size:13px;color:#555;font-weight:600;">{label_text}</th>'
-                f'<td style="padding:10px 12px;font-size:14px;color:#333333;">{value}</td></tr>')
+                f'font-size:13px;color:#555555 !important;font-weight:600;">{label_text}</th>'
+                f'<td style="padding:10px 12px;font-size:14px;color:#333333 !important;">{value}</td></tr>')
 
     # ジャケ写画像（テーブルの外・記事上部に大きく表示）
     # はてなブログで外部画像を表示するには設定が必要：
     # 管理画面 → 設定 → 詳細設定 → 「記事中に外部の画像を表示する」をON
     if image_url:
-        parts.append(f'<tr style="border-bottom:1px solid #eee;"><th style="padding:10px 12px;background:#fafafa;width:110px;text-align:left;font-size:13px;color:#555;font-weight:600;">ジャケット</th><td style="padding:10px 12px;"><a href="{url}" target="_blank" rel="nofollow noopener"><img src="{image_url}" alt="{title}" style="max-width:160px;height:auto;border-radius:4px;" loading="lazy" /></a></td></tr>')
+        parts.append(f'<tr style="border-bottom:1px solid #eee;"><th style="padding:10px 12px;background:#fafafa;width:110px;text-align:left;font-size:13px;color:#555555 !important;font-weight:600;">ジャケット</th><td style="padding:10px 12px;"><a href="{url}" target="_blank" rel="nofollow noopener"><img src="{image_url}" alt="{title}" style="max-width:160px;height:auto;border-radius:4px;" loading="lazy" /></a></td></tr>')
 
     parts.append(tr('タイトル', title))
     if actors:
@@ -469,15 +469,15 @@ def build_article_html(product):
 
     # ── サンプル動画 ──
     if sample_mv:
-        parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;">🎬 無料サンプル動画</h2>')
-        parts.append(f'<p style="color:#333333;">購入前に無料でサンプル動画を確認できます。</p>')
+        parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;color:#333333 !important;">🎬 無料サンプル動画</h2>')
+        parts.append(f'<p style="color:#333333 !important;">購入前に無料でサンプル動画を確認できます。</p>')
         # litevideo埋め込み
-        parts.append(f'<p><a href="{sample_mv}" target="_blank" rel="nofollow noopener" style="color:#e60033;">▶ サンプル動画を見る（無料）</a></p>')
+        parts.append(f'<p><a href="{sample_mv}" target="_blank" rel="nofollow noopener" style="color:#e60033 !important;">▶ サンプル動画を見る（無料）</a></p>')
 
     # ── サンプル画像 ──
     if sample_imgs:
-        parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;">🖼 サンプル画像</h2>')
-        parts.append('<p style="font-size:13px;color:#666;">※画像をクリックすると作品ページに移動します</p>')
+        parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;color:#333333 !important;">🖼 サンプル画像</h2>')
+        parts.append('<p style="font-size:13px;color:#666666 !important;">※画像をクリックすると作品ページに移動します</p>')
         parts.append('<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:600px;">')
         for img in sample_imgs:
             parts.append(f'''
@@ -489,7 +489,7 @@ def build_article_html(product):
         parts.append('</div>')
 
     # ── レビュー・おすすめポイント ──
-    parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;">✨ おすすめポイント</h2>')
+    parts.append('<h2 style="border-bottom:3px solid #e60033;padding-bottom:6px;margin-top:32px;color:#333333 !important;">✨ おすすめポイント</h2>')
 
     recommend_points = []
     if review_avg and review_avg >= 4.0:
@@ -514,24 +514,24 @@ def build_article_html(product):
     parts.append('<ul style="list-style:none;padding-left:0;margin:16px 0;">')
     for pt in recommend_points[:5]:
         parts.append(f'<li style="padding:8px 8px 8px 28px;margin-bottom:6px;background:#fff5f7;'
-                      f'border-radius:4px;position:relative;font-size:14px;">'
+                      f'border-radius:4px;position:relative;font-size:14px;color:#333333 !important;">'
                       f'<span style="position:absolute;left:8px;color:#e60033;font-weight:bold;">✓</span>{pt}</li>')
     parts.append('</ul>')
 
     # ── FANZAへの新規登録誘導（サービス新規報酬を狙う重要セクション） ──
-    parts.append('<h2 style="border-bottom:3px solid #ff6f00;padding-bottom:6px;margin-top:32px;">🔰 FANZAをまだ使ったことがない方へ</h2>')
+    parts.append('<h2 style="border-bottom:3px solid #ff6f00;padding-bottom:6px;margin-top:32px;color:#333333 !important;">🔰 FANZAをまだ使ったことがない方へ</h2>')
     parts.append(f'''
 <div style="background:linear-gradient(135deg,#fff8e1,#fff3e0);border:2px solid #ffc107;
             border-radius:12px;padding:20px;margin:20px 0;box-shadow:0 2px 8px rgba(255,193,7,0.2);">
-  <p style="margin:0 0 12px;font-weight:bold;font-size:16px;">💡 FANZAは無料会員登録で使えます</p>
+  <p style="margin:0 0 12px;font-weight:bold;font-size:16px;color:#333333 !important;">💡 FANZAは無料会員登録で使えます</p>
   <ul style="margin:0;padding-left:4px;list-style:none;">
-    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;">
+    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;color:#333333 !important;">
       <span style="position:absolute;left:0;color:#ff6f00;">🔸</span>会員登録は<strong>完全無料</strong></li>
-    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;">
+    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;color:#333333 !important;">
       <span style="position:absolute;left:0;color:#ff6f00;">🔸</span>登録するだけで<strong>全作品のサンプル動画が見放題</strong></li>
-    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;">
+    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;color:#333333 !important;">
       <span style="position:absolute;left:0;color:#ff6f00;">🔸</span>クレジットカード・ポイントなど複数の支払い方法に対応</li>
-    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;">
+    <li style="padding:6px 0 6px 24px;position:relative;font-size:14px;color:#333333 !important;">
       <span style="position:absolute;left:0;color:#ff6f00;">🔸</span>購入後すぐにダウンロード・ストリーミング視聴できる</li>
   </ul>
   <p style="text-align:center;margin:16px 0 0;">
@@ -547,9 +547,11 @@ def build_article_html(product):
 ''')
 
     # ── 関連ジャンルタグ（DMM内検索へのリンク） ──
-    if genres:
-        genre_tags = '　'.join([f'<a href="https://www.dmm.co.jp/search/=/searchstr={requests.utils.quote(g)}/" target="_blank" rel="nofollow noopener">{g}</a>' for g in genres])
-        parts.append(f'<p style="font-size:13px;color:#666;">関連ジャンル: {genre_tags}</p>')
+    EXCLUDED_TAGS = {'アフィリエイト', 'ハイビジョン', '独占配信'}
+    related_genres = [g for g in genres if g not in EXCLUDED_TAGS]
+    if related_genres:
+        genre_tags = '　'.join([f'<a href="https://www.dmm.co.jp/search/=/searchstr={requests.utils.quote(g)}/" target="_blank" rel="nofollow noopener" style="color:#0066cc !important;">{g}</a>' for g in related_genres])
+        parts.append(f'<p style="font-size:13px;color:#666666 !important;">関連ジャンル: {genre_tags}</p>')
 
     # ── 内部リンク（同ブログ内の関連記事へ誘導）──
     # はてなブログのカテゴリアーカイブページを利用。
