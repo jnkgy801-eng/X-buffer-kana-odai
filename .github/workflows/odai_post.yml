@@ -1,0 +1,95 @@
+name: お題投稿（1日2回・ランダム・Buffer経由）
+
+on:
+  # 自動実行を止めたいときは、下の schedule の3行をコメントアウトする
+  schedule:
+    - cron: '0 3 * * *'    # 毎日 日本時間12:00頃（投稿は約5分後）
+    - cron: '0 11 * * *'   # 毎日 日本時間20:00頃（投稿は約5分後）
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: '確認モード（Bufferへ送らず、画像と本文だけ確認する）'
+        required: false
+        default: true
+        type: boolean
+      theme_text:
+        description: 'お題を指定（空欄ならランダム）'
+        required: false
+        default: ''
+        type: string
+      list_channels:
+        description: 'BufferのチャンネルID一覧を表示するだけ（初回設定用）'
+        required: false
+        default: false
+        type: boolean
+
+# 前回実行が長引いても重複起動しない（履歴・画像の競合防止）
+concurrency:
+  group: odai-post
+  cancel-in-progress: false
+
+# 画像・履歴(outputs/)をpushするために必要
+permissions:
+  contents: write
+
+jobs:
+  list-channels:
+    if: ${{ github.event.inputs.list_channels == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: pip install -r requirements.txt
+      - name: Bufferのチャンネル一覧を表示
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+        run: python odai_poster.py channels
+
+  post-odai:
+    if: ${{ github.event.inputs.list_channels != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Pythonのセットアップ
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: 依存ライブラリと日本語フォントのインストール
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+
+      - name: お題画像を生成（お題は配列からランダム）
+        env:
+          THEME_TEXT: ${{ github.event.inputs.theme_text }}
+        run: python odai_poster.py generate
+
+      # 確認モード: 画像をActionsの「Artifacts」からダウンロードして見た目を確認できる
+      - name: 確認用に画像を保存（確認モードのみ）
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: odai-preview
+          path: outputs/images/
+
+      # BufferはURLから画像を取得するため、先にpushして公開URLを有効にする
+      - name: 画像をコミット＆push
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: python commit_history.py 画像生成
+
+      - name: Bufferへ予約投稿
+        env:
+          BUFFER_API_KEY:    ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_CHANNEL_ID: ${{ secrets.BUFFER_CHANNEL_ID }}
+          DRY_RUN:           ${{ github.event.inputs.dry_run || 'false' }}
+        run: python odai_poster.py post
+
+      - name: 使用履歴をコミット＆push
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: python commit_history.py 履歴更新
