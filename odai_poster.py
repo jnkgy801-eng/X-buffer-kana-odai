@@ -168,15 +168,19 @@ mutation CreatePost($input: CreatePostInput!) {
 
 
 def wait_url(url, timeout=90):
-    """pushした画像が raw.githubusercontent.com で見えるまで待つ。"""
+    """pushした画像が raw.githubusercontent.com で見えるまで待つ。最後のHTTP状態を返す。"""
+    status = None
     for _ in range(timeout // 5):
         try:
-            if requests.head(url, timeout=10, allow_redirects=True).status_code == 200:
-                return True
-        except requests.RequestException:
-            pass
+            r = requests.get(url, timeout=10, stream=True)
+            status = r.status_code
+            r.close()
+            if status == 200:
+                return True, status
+        except requests.RequestException as e:
+            status = type(e).__name__
         time.sleep(5)
-    return False
+    return False, status
 
 
 def cmd_post():
@@ -200,8 +204,11 @@ def cmd_post():
         sys.exit(1)
 
     url = f"https://raw.githubusercontent.com/{repo}/{branch}/{IMG_DIR}/{pending['file']}"
-    if not wait_url(url):
-        print(f'❌ 画像URLに到達できません（リポジトリがpublicか確認）: {url}')
+    ok, status = wait_url(url)
+    if not ok:
+        print(f'❌ 画像URLに到達できません（最後のHTTP状態: {status}）: {url}')
+        if status == 404:
+            print('   → 404 はリポジトリが private の可能性が高いです。public のリポジトリで実行してください。')
         sys.exit(1)
 
     due = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
