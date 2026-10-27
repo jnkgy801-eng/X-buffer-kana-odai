@@ -4,7 +4,7 @@
 
 サブコマンド:
   generate  お題を odai_list.json の配列からランダムに選び、画像を outputs/images/ に生成
-  post      生成済み画像の公開URLを使い、Buffer に「画像付き投稿 + 参加ルール返信」を予約
+  post      生成済み画像の公開URLを使い、Buffer に「画像付き投稿」を予約
   channels  Bufferのチャンネル一覧を表示（BUFFER_CHANNEL_ID の確認用）
 
 環境変数:
@@ -43,15 +43,8 @@ FONT_CANDIDATES = [
 SIZE = 1080
 ORANGE = (255, 176, 0)
 
-# 本文（1投稿目）と返信（参加ルール）。必要に応じて書き換えてください。
+# 投稿本文。必要に応じて書き換えてください。
 POST_TEMPLATE = '今日のお題はこちら👇\n\n{hashtag} をつけて、画像か動画で投稿してね！\n良い作品はリポストします'
-RULE_REPLY = (
-    '【参加ルール】\n'
-    '・18歳以上の方のみ\n'
-    '・ご自身で撮影した（または撮影者本人の同意がある）ものだけ\n'
-    '・無修正、未成年、無断撮影、他人の作品の転載は即ブロック＆通報\n'
-    '・センシティブ設定を必ずONに'
-)
 
 
 # ---------- 共通 ----------
@@ -193,7 +186,7 @@ def cmd_post():
 
     if os.environ.get('DRY_RUN', 'false').lower() == 'true':
         print('🧪 DRY_RUN: Bufferへは送信しません')
-        print(f"お題: {pending['theme']}\n---\n{text1}\n---\n{RULE_REPLY}")
+        print(f"お題: {pending['theme']}\n---\n{text1}")
         return
 
     channel = os.environ.get('BUFFER_CHANNEL_ID', '')
@@ -219,9 +212,9 @@ def cmd_post():
         'schedulingType': 'automatic',
         'mode': 'customScheduled',
         'dueAt': due.strftime('%Y-%m-%dT%H:%M:%S.000Z'),
+        # 要素1のthreadで画像付きの単独投稿にする（返信なし）
         'metadata': {'twitter': {'thread': [
             {'text': text1, 'assets': [{'image': {'url': url}}]},
-            {'text': RULE_REPLY},
         ]}},
     }
     result = buffer_graphql(CREATE_POST, {'input': input_obj}).get('createPost') or {}
